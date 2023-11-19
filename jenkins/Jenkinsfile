@@ -7,7 +7,8 @@ pipeline {
         // }
     }
     tools {
-        maven 'maven-3.8.6'
+        maven 'maven-3.8.8'
+        jdk 'jdk11'
     }
     options {
         // This is required if you want to clean before build
