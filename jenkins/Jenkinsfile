@@ -15,6 +15,8 @@ pipeline {
             steps {
                 // Clean before build
                 cleanWs()
+                // We need to explicitly checkout from SCM here
+                checkout scm
                 sh 'mvn -B -DskipTests clean package'
             }
         }
