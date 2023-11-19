@@ -6,6 +6,9 @@ pipeline {
         //     args '-v /root/.m2:/root/.m2'
         // }
     }
+    tools {
+        maven 'maven-3.8.6'
+    }
     options {
         // This is required if you want to clean before build
         skipDefaultCheckout(true)
