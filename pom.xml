@@ -26,7 +26,10 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.11.0</version>
         </plugin>
-        <plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
         <!-- Build an executable JAR -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -130,7 +133,6 @@
 			                 -->
 			    </configuration>
 			   </plugin>
-      </plugins>
-    </pluginManagement>
+    </plugins>
   </build>
 </project>
