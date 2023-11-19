@@ -15,29 +15,96 @@ pipeline {
         skipDefaultCheckout(true)
     }
     stages {
-        stage('Build') {
+        // stage('Build') {
+        //     steps {
+        //         // Clean before build
+        //         cleanWs()
+        //         // We need to explicitly checkout from SCM here
+        //         checkout scm
+        //         sh 'mvn -B -DskipTests clean package'
+        //     }
+        // }
+        // stage('Test') {
+        //     steps {
+        //         sh 'mvn test'
+        //     }
+        //     post {
+        //         always {
+        //             junit 'target/surefire-reports/*.xml'
+        //         }
+        //     }
+        // }
+        // stage('Deliver') {
+        //     steps {
+        //         sh './jenkins/scripts/deliver.sh'
+        //     }
+        // }
+
+        stage('Build Artifact - Maven') {
             steps {
-                // Clean before build
                 cleanWs()
-                // We need to explicitly checkout from SCM here
                 checkout scm
-                sh 'mvn -B -DskipTests clean package'
+                sh "mvn clean package -DskipTests=true"
+                archive 'target/*.jar'
             }
         }
-        stage('Test') {
+
+        stage('Unit Tests - JUnit and JaCoCo') {
             steps {
-                sh 'mvn test'
+                sh "mvn test"
             }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
+        }
+
+        stage('Mutation Tests - PIT') {
+            steps {
+                sh "mvn org.pitest:pitest-maven:mutationCoverage"
+            }
+        }
+
+        stage('SonarQube - SAST') {
+            steps {
+                withSonarQubeEnv(credentialsId: 'sonarqube-token', installationName: 'sonarqube') {
+                sh "mvn sonar:sonar \
+                    -Dsonar.projectKey=simple-java-maven-app"
+                    // -Dsonar.host.url=http://sonarqube-sonarqube-lts.sonarqube.svc.cluster.local"
+                }
+                timeout(time: 2, unit: 'MINUTES') {
+                script {
+                    waitForQualityGate abortPipeline: true
+                }
                 }
             }
         }
-        stage('Deliver') {
-            steps {
-                sh './jenkins/scripts/deliver.sh'
-            }
-        }
+
+    }
+    post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+          jacoco execPattern: 'target/jacoco.exec'
+          pitmutation mutationStatsFile: '**/target/pit-reports/**/mutations.xml'
+        //   dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
+      //     publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'owasp-zap-report', reportFiles: 'zap_report.html', reportName: 'OWASP ZAP HTML Report', reportTitles: 'OWASP ZAP HTML Report'])
+           // //Use sendNotifications.groovy from shared library and provide current build result as parameter
+        //   sendNotification currentBuild.result
+        // }
+
+        // success {
+        //     script {
+        //         /* Use slackNotifier.groovy from shared library and provide current build result as parameter */
+        //         env.failedStage = "none"
+        //         env.emoji = ":white_check_mark: :tada: :thumbsup_all:"
+        //         sendNotification currentBuild.result
+        //       }
+        // }
+
+        // failure {
+        //   script {
+        //     //Fetch information about  failed stage
+        //     def failedStages = getFailedStages( currentBuild )
+        //       env.failedStage = failedStages.failedStageName
+        //       env.emoji = ":x: :red_circle: :sos:"
+        //     sendNotification currentBuild.result
+        //   }
+        // }
     }
 }
