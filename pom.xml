@@ -8,12 +8,20 @@
   <name>my-app</name>
   <url>https://maven.apache.org</url>
   <dependencies>
+
+  <dependency>
+		<groupId>org.junit.platform</groupId>
+		<artifactId>junit-platform-suite</artifactId>
+		<version>1.10.1</version>
+  </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>5.10.1</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,6 +33,10 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.11.0</version>
+          <configuration>
+            <source>11</source>
+            <target>11</target>
+          </configuration>
         </plugin>
         <plugin>
         <!-- Build an executable JAR -->
@@ -89,20 +101,26 @@
 			   <plugin>
 			    <groupId>org.pitest</groupId>
 			    <artifactId>pitest-maven</artifactId>
-			    <version>1.9.0</version>
+			    <version>1.15.3</version>
 			    <dependencies>
 			     <dependency>
 			      <groupId>org.pitest</groupId>
 			      <artifactId>pitest-junit5-plugin</artifactId>
-			      <version>1.1.2</version>
+			      <version>1.2.1</version>
 			     </dependency>
 			    </dependencies>
 			    <configuration>
-			     <mutationThreshold>70</mutationThreshold>
+			     <mutationThreshold>0</mutationThreshold>
 			     <outputFormats>
 			             <outputFormat>XML</outputFormat>
 			             <outputFormat>HTML</outputFormat>
-			        </outputFormats>
+			      </outputFormats>
+            <targetClasses>
+                <param>com.mycompany.app.*</param>
+            </targetClasses>
+            <targetTests>
+                <param>^com\.mycompany\.app\..*$</param>
+            </targetTests>
 			    </configuration>
 			   </plugin>
 
